@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "registration",
     'library_api',
     'rest_framework',
+    'django_filters',
     "django_extensions",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -89,8 +90,9 @@ DATABASES = {
     # ImproperlyConfigured exception if not found
     #
     # The db() method is an alias for db_url().
+    "default": env.db(),
     # read os.environ['SQLITE_URL']
-    "default": {
+    "extra": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     },

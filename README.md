@@ -1,38 +1,433 @@
 # DRF Library API
 
-Create a new API-only application that lets users keep track of books, including important information like title, author, publication date, a genre, and a field that marks it as "featured". Books should be unique by title and author (that is, you can't have two books with the same title _and_ author; two books with the same title is fine as long as the authors are different).
+## Get a List of all Books
 
-Users should be able to search for a book by title or author.
+### request:
 
-Anyone can add a new book as long as the same book is not already in the library. Only admin users can update book details (like whether it is "featured") and delete books.
+type: 'GET'
 
-You'll also need a book tracking model so that users can mark a book as "want to read", "reading", or "read/done"; this status can also be updated. The tracking model should have a foreign key to a book and to a user.
+url: books/
 
-Optionally users can take notes on books. These notes have a foreign key relationship with a book and a user, a datetime they are created, a note body, a boolean field marking it as public or private, and an optional page number. Private notes are viewable only by the author. When notes are retrieved, return them by creation time in reverse order.
+### response:
 
-Users should be able to see a list of all the books they are tracking, or a list by status (for instance, all their "want to read" books). You _could_ consider using [DjangoFilterBackend](https://www.django-rest-framework.org/api-guide/filtering/#djangofilterbackend) for this.
+```json
+[
+  {
+    "url": "http://127.0.0.1:8000/books/1/",
+    "title": "Test!",
+    "author": "Test",
+    "publication_date": "1111-01-01",
+    "genre": "Test",
+    "featured": true,
+    "user": "admin"
+  },
+  {
+    "url": "http://127.0.0.1:8000/books/2/",
+    "title": "Another one!!",
+    "author": "Another one",
+    "publication_date": "1111-11-11",
+    "genre": "Test",
+    "featured": false,
+    "user": "admin"
+  },
+  {
+    "url": "http://127.0.0.1:8000/books/4/",
+    "title": "Test",
+    "author": "Test",
+    "publication_date": "1111-01-01",
+    "genre": "Test",
+    "featured": true,
+    "user": "testuser"
+  },
+  {
+    "url": "http://127.0.0.1:8000/books/5/",
+    "title": "Chicken",
+    "author": "Wings",
+    "publication_date": "1111-01-01",
+    "genre": "Chicken",
+    "featured": true,
+    "user": "testuser"
+  },
+  {
+    "url": "http://127.0.0.1:8000/books/6/",
+    "title": "Another book",
+    "author": "Another Book",
+    "publication_date": "1111-11-11",
+    "genre": "Not a valid string.",
+    "featured": false,
+    "user": "testuser"
+  },
+  {
+    "url": "http://127.0.0.1:8000/books/8/",
+    "title": "Demo",
+    "author": "Demo",
+    "publication_date": "1111-11-11",
+    "genre": "Demo",
+    "featured": false,
+    "user": "admin"
+  }
+]
+```
 
-You should _not_ make forms or templates for this app, but you will need models, urls, views, and serializers. You should use class-based views and return JSON responses.
+## Get a List of all Featured Books
 
-Your app should allow users to:
+### request:
 
-- list all books
-- list all featured books
-- create a book
-- retrieve details about a book
-- search books by author or title
-- see a list of all the books they are tracking and their statuses
-- mark a book as want to read, reading, or read
-- update the want to read/reading/read status of a book
-- see a list of all their books by status (e.g., all the books they have marked as "read")
-- retrieve all their own private notes for a book
-- retrieve all public notes for a book
-- create a note for a book
-- edit their own notes
+type: 'GET'
 
-Admin users can:
+url: featured/
 
-- update a book (including marking/unmarking it as featured)
-- delete a book (this should not delete notes about a book)
+### response:
 
-You'll need to use Insomnia (or some other tool for making requests) to test your API as you are building it.
+```json
+[
+  {
+    "url": "http://127.0.0.1:8000/books/1/",
+    "title": "Test!",
+    "author": "Test",
+    "publication_date": "1111-01-01",
+    "genre": "Test",
+    "featured": true,
+    "user": "admin"
+  },
+  {
+    "url": "http://127.0.0.1:8000/books/4/",
+    "title": "Test",
+    "author": "Test",
+    "publication_date": "1111-01-01",
+    "genre": "Test",
+    "featured": true,
+    "user": "testuser"
+  },
+  {
+    "url": "http://127.0.0.1:8000/books/5/",
+    "title": "Chicken",
+    "author": "Wings",
+    "publication_date": "1111-01-01",
+    "genre": "Chicken",
+    "featured": true,
+    "user": "testuser"
+  }
+]
+```
+
+## Create a new book
+
+### request:
+
+type: 'POST'
+
+Requires Basic authentication.
+
+title, author, publication date, genre, and user are required fields.
+
+```json
+{
+  "url": "http://127.0.0.1:8000/books/3/",
+  "title": "Demo",
+  "author": "Demo",
+  "publication_date": "1111-11-11",
+  "genre": "Demo",
+  "user": "admin"
+}
+```
+
+### response:
+
+```json
+{
+  "url": "http://127.0.0.1:8000/books/8/",
+  "title": "Demo",
+  "author": "Demo",
+  "publication_date": "1111-11-11",
+  "genre": "chicken wings",
+  "featured": false,
+  "user": "admin"
+}
+```
+
+## Retrieve Details about a Book
+
+### request:
+
+type: 'GET'
+
+url: books/{bookpk}
+
+### response
+
+```json
+{
+  "url": "http://127.0.0.1:8000/books/3/",
+  "title": "Demo",
+  "author": "Demo",
+  "publication_date": "1111-11-11",
+  "genre": "demo",
+  "user": "admin"
+}
+```
+
+## Search for a Book by Title or Author
+
+### request:
+
+type: 'GET'
+
+url: books/?search={title or author}
+
+### response:
+
+```json
+{
+  "url": "http://127.0.0.1:8000/books/3/",
+  "title": "The Anatomy of Melancholy",
+  "author": "Robert Burton",
+  "publication_date": "1111-11-11",
+  "genre": "chicken wings",
+  "featured": false,
+  "user": "admin"
+}
+```
+
+## List of all Books Current User is Tracking
+
+type: 'GET'
+
+Requires Basic authentication.
+
+url: book_trackers/
+
+### response:
+
+```json
+[
+  {
+    "url": "http://127.0.0.1:8000/book_trackers/12/",
+    "status": "Want to Read",
+    "book": "Chicken",
+    "user": "admin"
+  },
+  {
+    "url": "http://127.0.0.1:8000/book_trackers/13/",
+    "status": "Want to Read",
+    "book": "Not a valid string.",
+    "user": "admin"
+  }
+]
+```
+
+## Track a Book and Add a Status
+
+### request:
+
+type: 'POST'
+
+Requires Basic authentication.
+
+url: /book_trackers
+
+Status Options: 'Want To Read', 'Reading', 'Reading/Done'
+
+url, status, book, and user are required fields.
+
+```json
+{
+  "url": "http://127.0.0.1:8000/book_trackers/",
+  "status": "Reading",
+  "book": "Chicken",
+  "user": "admin"
+}
+```
+
+### response:
+
+```json
+{
+  "url": "http://127.0.0.1:8000/book_trackers/17/",
+  "status": "Reading",
+  "book": "Chicken",
+  "user": "admin"
+}
+```
+
+## Change a Book Tracker's Status
+
+### request:
+
+type: 'PUT'
+
+Requires Basic authentication.
+
+url: book_trackers/{trackerpk}
+
+Status Options: 'Want To Read', 'Reading', 'Reading/Done'
+
+url, status, book, and user are required fields.
+
+```json
+{
+  "url": "http://127.0.0.1:8000/book_trackers/12/",
+  "status": "Reading",
+  "book": "Chicken",
+  "user": "admin"
+}
+```
+
+### response:
+
+```json
+{
+  "url": "http://127.0.0.1:8000/book_trackers/17/",
+  "status": "Reading",
+  "book": "Chicken",
+  "user": "admin"
+}
+```
+
+## View all Books by status
+
+### request:
+
+type: 'GET'
+
+Requires Basic authentication.
+
+Status Options: 'Want To Read', 'Reading', 'Reading/Done'
+
+url: book_trackers/{Status}
+
+```json
+[
+  {
+    "url": "http://127.0.0.1:8000/book_trackers/17/",
+    "status": "Reading",
+    "book": "Demo",
+    "user": "admin"
+  }
+]
+```
+
+## Retrieve All Private Book Notes
+
+### request:
+
+type: 'GET'
+
+Requires Basic authentication.
+
+url: notes/
+
+```json
+    "url": "http://127.0.0.1:8000/notes/6/",
+    "book": "The Anatomy of Melancholy",
+    "user": "admin",
+    "created_date": "2022-04-03T03:18:17.313164Z",
+    "text": "This is Melancholy's note",
+    "public": false,
+    "page_number": null
+```
+
+## Retrieve All Public Book Notes
+
+### request:
+
+type: 'GET'
+
+Requires Basic authentication.
+
+url: public-notes/
+
+```json
+[
+  {
+    "url": "http://127.0.0.1:8000/notes/3/",
+    "book": "The Anatomy of Melancholy",
+    "user": "testuser",
+    "created_date": "2022-04-02T15:25:39.717457Z",
+    "text": "Editing my notes",
+    "public": true,
+    "page_number": null
+  },
+  {
+    "url": "http://127.0.0.1:8000/notes/5/",
+    "book": "Test!",
+    "user": "testuser",
+    "created_date": "2022-04-02T15:41:30.353145Z",
+    "text": "Reverse Order",
+    "public": true,
+    "page_number": null
+  }
+]
+```
+
+## Create a Note for a Book
+
+### request:
+
+type: 'POST'
+
+Requires Basic authentication.
+
+url: notes/
+
+book, user, and text are required fields.
+
+```json
+{
+  "book": "Chicken",
+  "user": "admin",
+  "text": "A Test",
+  "public": false,
+  "page_number": "30"
+}
+```
+
+### response:
+
+```json
+{
+  "url": "http://127.0.0.1:8000/notes/7/",
+  "book": "Chicken",
+  "user": "admin",
+  "created_date": "2022-04-03T03:22:53.792382Z",
+  "text": "A Test",
+  "public": false,
+  "page_number": 30
+}
+```
+
+## Edit a Note
+
+### request:
+
+type: 'PUT'
+
+Requires Basic authentication.
+
+url: notes/{notepk}
+
+book, user, and text are required fields.
+
+```json
+{
+  "book": "Chicken",
+  "user": "admin",
+  "text": "A Test of an edit!",
+  "public": false,
+  "page_number": "30"
+}
+```
+
+### response:
+
+```json
+{
+  "url": "http://127.0.0.1:8000/notes/7/",
+  "book": "Chicken",
+  "user": "admin",
+  "created_date": "2022-04-03T03:22:53.792382Z",
+  "text": "A Test of an edit!",
+  "public": false,
+  "page_number": 30
+}
+```

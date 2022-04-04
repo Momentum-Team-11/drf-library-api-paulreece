@@ -11,6 +11,8 @@ django-environ = "*"
 djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
+psycopg2-binary = "*"
+drf-writable-nested = "*"
 
 [dev-packages]
 flake8 = "*"
